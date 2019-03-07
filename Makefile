@@ -5,9 +5,9 @@
 
 OPTIMIZATION=-O2
 CC = gcc $(OPTIMIZATION)
-ARCH = #-m32 # 64 native
-CFLAGS = -std=c11 -pedantic $(ARCH) -Wall -Wextra
-#CFLAGS = -std=c11 -Wall -pedantic
+ARCH = #-m32 # 64 native # TODO: test 32bit
+CFLAGS = -g -std=c11 -pedantic $(ARCH) -Wall -Wextra # Debug flags
+#CFLAGS = -std=c11 -Wall -pedantic # TODO: Switch to this flags
 LIBS = -lm
 
 .PHONY: all
@@ -27,6 +27,9 @@ clean:
 		steg-decode-alloc steg-decode steg-decode-alloc-i steg-decode-i \
 		array-test-alloc array-test array-test-alloc-i array-test-i
 
+pack:
+	zip xkuchy02.zip *.c *.h .gitignore Makefile
+
 
 primes-everything: primes-alloc primes primes-alloc-i primes-i
 
@@ -36,42 +39,42 @@ array-test-everything: array-test-alloc array-test array-test-alloc-i array-test
 
 
 primes-alloc: primes-alloc.o bit_array.o eratosthenes.o error.o
-	$(CC) -o $@ $^ $(CFLAGS)
+	$(CC) -o $@ $^ $(CFLAGS) $(LIBS)
 
 primes: primes.o bit_array.o eratosthenes.o error.o
-	$(CC) -o $@ $^ $(CFLAGS)
+	$(CC) -o $@ $^ $(CFLAGS) $(LIBS)
 
 primes-alloc-i: primes-alloc.o bit_array-i.o eratosthenes.o error.o
-	$(CC) -o $@ $^ $(CFLAGS)
+	$(CC) -o $@ $^ $(CFLAGS) $(LIBS)
 
 primes-i: primes.o bit_array-i.o eratosthenes.o error.o
-	$(CC) -o $@ $^ $(CFLAGS)
+	$(CC) -o $@ $^ $(CFLAGS) $(LIBS)
 
 
 steg-decode-alloc: steg-decode-alloc.o ppm.o bit_array.o eratosthenes.o error.o
-	$(CC) -o $@ $^ $(CFLAGS)
+	$(CC) -o $@ $^ $(CFLAGS) $(LIBS)
 
 steg-decode: steg-decode.o ppm.o bit_array.o eratosthenes.o error.o
-	$(CC) -o $@ $^ $(CFLAGS)
+	$(CC) -o $@ $^ $(CFLAGS) $(LIBS)
 
 steg-decode-alloc-i: steg-decode-alloc.o ppm.o bit_array-i.o eratosthenes.o error.o
-	$(CC) -o $@ $^ $(CFLAGS)
+	$(CC) -o $@ $^ $(CFLAGS) $(LIBS)
 
 steg-decode-i: steg-decode.o ppm.o bit_array-i.o eratosthenes.o error.o
-	$(CC) -o $@ $^ $(CFLAGS)
+	$(CC) -o $@ $^ $(CFLAGS) $(LIBS)
 
 
 array-test-alloc: array-test-alloc.o bit_array.o error.o
-	$(CC) -o $@ $^ $(CFLAGS)
+	$(CC) -o $@ $^ $(CFLAGS) $(LIBS)
 
 array-test: array-test.o bit_array.o error.o
-	$(CC) -o $@ $^ $(CFLAGS)
+	$(CC) -o $@ $^ $(CFLAGS) $(LIBS)
 
 array-test-alloc-i: array-test-alloc.o bit_array-i.o error.o
-	$(CC) -o $@ $^ $(CFLAGS)
+	$(CC) -o $@ $^ $(CFLAGS) $(LIBS)
 
 array-test-i: array-test.o bit_array-i.o error.o
-	$(CC) -o $@ $^ $(CFLAGS)
+	$(CC) -o $@ $^ $(CFLAGS) $(LIBS)
 
 
 primes.o: primes.c bit_array.h eratosthenes.h error.h

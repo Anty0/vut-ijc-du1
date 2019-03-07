@@ -8,6 +8,9 @@
 
 #include "bit_array.h"
 
+/**
+ * TODO
+ */
 void Eratosthenes(bit_array_t *array);
 
 #endif // DU1_ERATOSTHENES_H

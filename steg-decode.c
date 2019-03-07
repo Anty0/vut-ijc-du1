@@ -62,12 +62,12 @@ int main(const int argc, const char **argv)
             {
                 tmp ^= charOne << tmpPtr; // Switch bit -> Set it to 1
             }
-            
+
             if (++tmpPtr >= charLen)
             {
                 if (tmp == 0)
                 {
-                    break;
+                    break; // TODO: exit with error, if no '\0' is found
                 }
 
                 printf("%c", tmp);
@@ -84,6 +84,7 @@ int main(const int argc, const char **argv)
 #endif // USE_ALLOC
 
     ppm_free(image);
+    image = NULL;
 
     return EXIT_SUCCESS;
 }

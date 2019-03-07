@@ -14,14 +14,6 @@
 void print_warning(const char *fmt, va_list args)
 {
     static const char *prepend = "CHYBA: ";
-    // static size_t prependLen = strlen(prepend);
-
-    // size_t fmtLen = strlen(fmt);
-    // char fullFmt[fmtLen + prependLen + 2];
-    // strcpy(fullFmt, fmt);
-    // strcpy(&fmtLen[fmtLen], prepend);
-    // strcpy(&fmtLen[fmtLen + prependLen], "\n");
-
     fprintf(stderr, prepend);
     vfprintf(stderr, fmt, args);
     fprintf(stderr, "\n");

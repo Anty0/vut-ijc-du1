@@ -15,6 +15,7 @@
 #include <string.h>
 
 #define INFO_LINE_LEN_LIMIT 100
+#define IMAGE_SIZE_LIMIT ((unsigned long)(8000 * 8000 * 3))
 
 FILE *openFile(const char *filename)
 {
@@ -57,13 +58,6 @@ bool readLine(const char *filename, FILE *file, char *line)
         while ((ch = getc(file) != EOF && ch != '\n'))
             ; // find new line character, ignore everything else
     }
-    // else
-    // {
-    //     // no newline == last line => missing data
-    //     warning_msg("Unexpected EOF while reading file '%s'", filename);
-    //     fclose(file);
-    //     return false;
-    // }
     return true;
 }
 
@@ -89,7 +83,8 @@ char *trimLine(char *line)
 bool strToUI(char *str, unsigned *ret)
 {
     char *tmpPtr;
-    for (tmpPtr = str; *tmpPtr != '\0'; tmpPtr++) {
+    for (tmpPtr = str; *tmpPtr != '\0'; tmpPtr++)
+    {
         if (!isdigit(*tmpPtr))
         {
             return false;
@@ -103,7 +98,7 @@ bool strToUI(char *str, unsigned *ret)
         return false;
     }
 
-    *ret = (unsigned) n;
+    *ret = (unsigned)n;
     return true;
 }
 
@@ -226,7 +221,18 @@ struct ppm *ppm_read(const char *filename)
         }
     }
 
-    unsigned long dataLen = sizeX * sizeY * 3;
+    unsigned long dataLen = (unsigned long)sizeX * (unsigned long)sizeY * (unsigned long)3;
+
+    { // Check size
+        if (dataLen > IMAGE_SIZE_LIMIT)
+        {
+            warning_msg("Failed to read '%s': Image is too big: Size '%lu', size limit '%lu'", filename, dataLen, IMAGE_SIZE_LIMIT);
+
+            fclose(file);
+            return NULL;
+        }
+    }
+
     struct ppm *result = malloc(sizeof(struct ppm) + sizeof(char) * dataLen);
     if (result == NULL)
     {
@@ -266,6 +272,7 @@ struct ppm *ppm_read(const char *filename)
         }
     }
 
+    fclose(file);
     return result;
 } // End ppm_read
 

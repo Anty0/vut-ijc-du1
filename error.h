@@ -9,11 +9,20 @@
 #include <stdnoreturn.h>
 
 /**
+ * tisknou text "CHYBA: " a potom
+ * chybové hlášení podle formátu fmt. Vše se tiskne do stderr
+ * (funkcí vfprintf).
+ * 
  * TODO
  */
 void warning_msg(const char *fmt, ...);
 
 /**
+ * tiskne text "CHYBA: " a potom
+ * chybové hlášení podle formátu fmt. Vše se tiskne do stderr
+ * (funkcí vfprintf) a potom ukončí program voláním
+ * funkce exit(1).
+ * 
  * TODO
  */
 noreturn void error_exit(const char *fmt, ...);

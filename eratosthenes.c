@@ -9,15 +9,17 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <math.h>
 
 void Eratosthenes(bit_array_t *array)
 {
     unsigned long size = bit_array_size(array);
+    unsigned long end = (unsigned long)sqrtl(size);
 
     bit_array_setbit(array, 0, 1);
     bit_array_setbit(array, 1, 1);
 
-    for (unsigned long i = 2; i < size; i++)
+    for (unsigned long i = 2; i < end; i++)
     {
         if (!bit_array_getbit(array, i))
         {
