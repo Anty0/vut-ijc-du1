@@ -23,54 +23,54 @@ run: primes primes-i
 
 .PHONY: clean
 clean:
-	rm -f *.o primes primes-local primes-i primes-local-i \
-		steg-decode steg-decode-local steg-decode-i steg-decode-local-i \
-		array-test array-test-local array-test-i array-test-local-i
+	rm -f *.o primes-alloc primes primes-alloc-i primes-i \
+		steg-decode-alloc steg-decode steg-decode-alloc-i steg-decode-i \
+		array-test-alloc array-test array-test-alloc-i array-test-i
 
 
-primes-everything: primes primes-local primes-i primes-local-i
+primes-everything: primes-alloc primes primes-alloc-i primes-i
 
-steg-decode-everything: steg-decode steg-decode-local steg-decode-i steg-decode-local-i
+steg-decode-everything: steg-decode-alloc steg-decode steg-decode-alloc-i steg-decode-i
 
-array-test-everything: array-test array-test-local array-test-i array-test-local-i
+array-test-everything: array-test-alloc array-test array-test-alloc-i array-test-i
 
 
-primes: primes-alloc.o bit_array.o eratosthenes.o error.o
+primes-alloc: primes-alloc.o bit_array.o eratosthenes.o error.o
 	$(CC) -o $@ $^ $(CFLAGS)
 
-primes-local: primes.o bit_array.o eratosthenes.o error.o
+primes: primes.o bit_array.o eratosthenes.o error.o
 	$(CC) -o $@ $^ $(CFLAGS)
 
-primes-i: primes-alloc.o bit_array-i.o eratosthenes.o error.o
+primes-alloc-i: primes-alloc.o bit_array-i.o eratosthenes.o error.o
 	$(CC) -o $@ $^ $(CFLAGS)
 
-primes-local-i: primes.o bit_array-i.o eratosthenes.o error.o
-	$(CC) -o $@ $^ $(CFLAGS)
-
-
-steg-decode: steg-decode-alloc.o ppm.o bit_array.o eratosthenes.o error.o
-	$(CC) -o $@ $^ $(CFLAGS)
-
-steg-decode-local: steg-decode.o ppm.o bit_array.o eratosthenes.o error.o
-	$(CC) -o $@ $^ $(CFLAGS)
-
-steg-decode-i: steg-decode-alloc.o ppm.o bit_array-i.o eratosthenes.o error.o
-	$(CC) -o $@ $^ $(CFLAGS)
-
-steg-decode-local-i: steg-decode.o ppm.o bit_array-i.o eratosthenes.o error.o
+primes-i: primes.o bit_array-i.o eratosthenes.o error.o
 	$(CC) -o $@ $^ $(CFLAGS)
 
 
-array-test: array-test-alloc.o bit_array.o error.o
+steg-decode-alloc: steg-decode-alloc.o ppm.o bit_array.o eratosthenes.o error.o
 	$(CC) -o $@ $^ $(CFLAGS)
 
-array-test-local: array-test.o bit_array.o error.o
+steg-decode: steg-decode.o ppm.o bit_array.o eratosthenes.o error.o
 	$(CC) -o $@ $^ $(CFLAGS)
 
-array-test-i: array-test-alloc.o bit_array-i.o error.o
+steg-decode-alloc-i: steg-decode-alloc.o ppm.o bit_array-i.o eratosthenes.o error.o
 	$(CC) -o $@ $^ $(CFLAGS)
 
-array-test-local-i: array-test.o bit_array-i.o error.o
+steg-decode-i: steg-decode.o ppm.o bit_array-i.o eratosthenes.o error.o
+	$(CC) -o $@ $^ $(CFLAGS)
+
+
+array-test-alloc: array-test-alloc.o bit_array.o error.o
+	$(CC) -o $@ $^ $(CFLAGS)
+
+array-test: array-test.o bit_array.o error.o
+	$(CC) -o $@ $^ $(CFLAGS)
+
+array-test-alloc-i: array-test-alloc.o bit_array-i.o error.o
+	$(CC) -o $@ $^ $(CFLAGS)
+
+array-test-i: array-test.o bit_array-i.o error.o
 	$(CC) -o $@ $^ $(CFLAGS)
 
 
