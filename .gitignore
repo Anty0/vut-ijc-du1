@@ -1,0 +1,13 @@
+*.o
+/primes
+/primes-local
+/primes-i
+/primes-local-i
+/steg-decode
+/steg-decode-local
+/steg-decode-i
+/steg-decode-local-i
+/array-test
+/array-test-local
+/array-test-i
+/array-test-local-i
