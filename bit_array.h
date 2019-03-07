@@ -17,8 +17,6 @@
 
 /**
  * Typ bitového pole (pro předávání parametru do funkce odkazem)
- * 
- * TODO
  */
 typedef unsigned long bit_array_t;
 
@@ -39,16 +37,15 @@ typedef unsigned long bit_array_t;
         ? (error_exit("bit_array_getbit: Index %lu mimo rozsah 0..%lu", (index), _bit_array_size(array) - 1), 1) \
         : 0)
 
-/* #define _bit_array_clear(array, len) do { \ 
-//     for (unsigned long i = 1; i < len; i++) \ 
-//     { \ 
-//         printf("Clear %lu\n", i); \ 
-//         (array)[i] = 0; \ 
-//     } \ 
-// } while(0) */
-
-/* _bit_array_clear(*(array), len); \ */
-
+/**
+ * Definuje a _nuluje_ proměnnou jmeno_pole
+ * (POZOR: opravdu musí _INICIALIZOVAT_ pole bez ohledu na
+ * to, zda je pole statické nebo automatické/lokální!  Vyzkoušejte si obě
+ * varianty, v programu použijte lokální pole.)
+ * Př: static bit_array_create(p,100); // p = pole 100 bitů, nulováno
+ *     bit_array_create(q,100000L); // q = pole 100000 bitů, nulováno
+ * Použijte static_assert pro kontrolu maximální možné velikosti pole.
+ */
 //TODO: static_assert
 #define _bit_array_create(array, size)                                                                                   \
     do                                                                                                                   \
@@ -60,6 +57,14 @@ typedef unsigned long bit_array_t;
         (array)[0] = size;                                                                                               \
     } while (0)
 
+/**
+ * Definuje proměnnou jmeno_pole tak, aby byla kompatibilní s polem
+ * vytvořeným pomocí bit_array_create, ale pole bude alokováno dynamicky.
+ * Př: bit_array_alloc(q,100000L); // q = pole 100000 bitů, nulováno
+ * Použijte assert pro kontrolu maximální možné velikosti pole.
+ * Pokud alokace selže, ukončete program s chybovým hlášením:
+ * "bit_array_alloc: Chyba alokace paměti"
+ */
 #define _bit_array_alloc(array, size)                                                                                   \
     do                                                                                                                  \
     {                                                                                                                   \
@@ -76,15 +81,25 @@ typedef unsigned long bit_array_t;
         (*(array))[0] = size;                                                                                           \
     } while (0)
 
+/**
+ * Uvolní paměť dynamicky alokovaného pole
+ */
 #define _bit_array_free(array) \
     do                         \
     {                          \
         free(array);           \
     } while (0)
 
+/**
+ * vrátí deklarovanou velikost pole v bitech (uloženou v poli)
+ */
 #define _bit_array_size(array) ((array)[0])
 
-// TODO: check index limits
+/**
+ * nastaví zadaný bit v poli na hodnotu zadanou výrazem
+ * (nulový výraz == bit 0, nenulový výraz == bit 1)
+ * Př: bit_array_setbit(p,20,1);
+ */
 #define _bit_array_setbit(array, index, newBit)                                              \
     do                                                                                       \
     {                                                                                        \
@@ -99,14 +114,17 @@ typedef unsigned long bit_array_t;
         }                                                                                    \
     } while (0)
 
-// TODO: check index limits
+/**
+ * získá hodnotu zadaného bitu, vrací hodnotu 0 nebo 1
+ * Př: if(bit_array_getbit(p,i)==1) printf("1");
+ *     if(!bit_array_getbit(p,i))   printf("0");
+ */
 #define _bit_array_getbit(array, index) (                                            \
     _bit_array_check_index(index),                                                   \
     (((array)[_bit_array_index(index)] & (_long_one << _bit_array_bit_index(index))) \
          ? 1                                                                         \
          : 0))
 
-// TODO: check index limits
 /* #define _bit_array_switchbit(array, index)                                            \
 //     do                                                                                \
 //     {                                                                                 \
@@ -162,53 +180,5 @@ inline int bit_array_getbit(bit_array_t *array, unsigned long index)
 //#define bit_array_switchbit(array, index) _bit_array_switchbit(array, index)
 
 #endif // USE_INLINE
-
-/**
- * definuje a _nuluje_ proměnnou jmeno_pole
- * (POZOR: opravdu musí _INICIALIZOVAT_ pole bez ohledu na
- * to, zda je pole statické nebo automatické/lokální!  Vyzkoušejte si obě
- * varianty, v programu použijte lokální pole.)
- * Př: static bit_array_create(p,100); // p = pole 100 bitů, nulováno
- *     bit_array_create(q,100000L); // q = pole 100000 bitů, nulováno
- * Použijte static_assert pro kontrolu maximální možné velikosti pole.
- */
-//bit_array_create(jmeno_pole,velikost)
-
-/**
- * definuje proměnnou jmeno_pole tak, aby byla kompatibilní s polem
- * vytvořeným pomocí bit_array_create, ale pole bude alokováno dynamicky.
- * Př: bit_array_alloc(q,100000L); // q = pole 100000 bitů, nulováno
- * Použijte assert pro kontrolu maximální možné velikosti pole.
- * Pokud alokace selže, ukončete program s chybovým hlášením:
- * "bit_array_alloc: Chyba alokace paměti"
- */
-//bit_array_alloc(jmeno_pole,velikost)
-
-/**
- * uvolní paměť dynamicky alokovaného pole
- */
-//bit_array_free(jmeno_pole)
-
-/**
- * vrátí deklarovanou velikost pole v bitech (uloženou v poli)
- */
-//bit_array_size(jmeno_pole)
-
-/**
- * nastaví zadaný bit v poli na hodnotu zadanou výrazem
- * (nulový výraz == bit 0, nenulový výraz == bit 1)
- * Př: bit_array_setbit(p,20,1);
- */
-//bit_array_setbit(jmeno_pole,index,výraz)
-
-/**
- * získá hodnotu zadaného bitu, vrací hodnotu 0 nebo 1
- * Př: if(bit_array_getbit(p,i)==1) printf("1");
- *     if(!bit_array_getbit(p,i))   printf("0");
- */
-//bit_array_getbit(jmeno_pole,index)
-
-//error_exit("bit_array_getbit: Index %lu mimo rozsah 0..%lu",
-//            (unsigned long)index, (unsigned long)mez).
 
 #endif // DU1_BIT_ARRAY_H

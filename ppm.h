@@ -14,18 +14,19 @@ struct ppm
 };
 
 /**
- * načte obsah PPM souboru do touto funkcí dynamicky
+ * Načte obsah PPM souboru do touto funkcí dynamicky
  * alokované struktury. Při chybě formátu použije funkci warning_msg
- * a vrátí NULL.  Pozor na "memory leaks".
+ * a vrátí NULL.
  * 
- * TODO
+ * @param filename Cesta k PPM souboru k načtení
+ * @return V případě chyby NULL, jinak pointer na obsah načteného PPM souboru
  */
 struct ppm *ppm_read(const char *filename);
 
 /**
- * uvolní paměť dynamicky alokovanou v ppm_read
+ * Uvolní paměť dynamicky alokovanou v ppm_read
  * 
- * TODO
+ * @param ppm struktura vrácená z ppm_read k dealokaci
  */
 void ppm_free(struct ppm *p);
 

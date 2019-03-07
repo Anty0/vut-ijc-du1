@@ -9,7 +9,9 @@
 #include "bit_array.h"
 
 /**
- * TODO
+ * Používá algoritmus známý jako Eratostenovo síto k nalezení prvočísel
+ * 
+ * @param array Array do kterého budou zaznamenána prvočísla
  */
 void Eratosthenes(bit_array_t *array);
 

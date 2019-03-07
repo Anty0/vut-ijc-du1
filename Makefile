@@ -5,9 +5,9 @@
 
 OPTIMIZATION=-O2
 CC = gcc $(OPTIMIZATION)
-ARCH = #-m32 # 64 native # TODO: test 32bit
-CFLAGS = -g -std=c11 -pedantic $(ARCH) -Wall -Wextra # Debug flags
-#CFLAGS = -std=c11 -Wall -pedantic # TODO: Switch to this flags
+#ARCH = -m32
+#CFLAGS = -g -std=c11 -pedantic $(ARCH) -Wall -Wextra # Debugging flags
+CFLAGS = -std=c11 -Wall -pedantic
 LIBS = -lm
 
 .PHONY: all

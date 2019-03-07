@@ -8,6 +8,7 @@
 #include "ppm.h"
 #include "error.h"
 
+#include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -45,6 +46,7 @@ int main(const int argc, const char **argv)
 
     char tmp = 0;
     uint8_t tmpPtr = 0;
+    bool successfulExit = false;
     for (unsigned long i = 19; i < size; i++)
     {
         if (!bit_array_getbit(array, i))
@@ -67,7 +69,8 @@ int main(const int argc, const char **argv)
             {
                 if (tmp == 0)
                 {
-                    break; // TODO: exit with error, if no '\0' is found
+                    successfulExit = true;
+                    break;
                 }
 
                 printf("%c", tmp);
@@ -85,6 +88,12 @@ int main(const int argc, const char **argv)
 
     ppm_free(image);
     image = NULL;
+
+    if (!successfulExit)
+    {
+        printf("\n");
+        error_exit("Image does not contain string terminator ('\\0')");
+    }
 
     return EXIT_SUCCESS;
 }
