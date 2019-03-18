@@ -28,7 +28,7 @@ clean:
 		array-test-alloc array-test array-test-alloc-i array-test-i
 
 pack:
-	zip xkuchy02.zip *.c *.h .gitignore Makefile
+	zip xkuchy02.zip *.c *.h Makefile
 
 
 primes-everything: primes-alloc primes primes-alloc-i primes-i
