@@ -24,7 +24,9 @@ typedef unsigned long bit_array_t;
 
 #define _long_one ((unsigned long)1)
 
-#define _bit_array_len(size) (_round_to_multiply((size) / CHAR_BIT + ((size) % CHAR_BIT ? 1 : 0) + sizeof(unsigned long), sizeof(unsigned long)))
+#define _bit_array_size_limit ((SIZE_MAX - sizeof(unsigned long)) * CHAR_BIT)
+
+#define _bit_array_len(size) (_round_to_multiply((size) / CHAR_BIT + ((size) % CHAR_BIT != 0) + sizeof(unsigned long), sizeof(unsigned long)))
 
 #define _bit_array_num_bits (CHAR_BIT * sizeof(unsigned long))
 
@@ -32,9 +34,9 @@ typedef unsigned long bit_array_t;
 
 #define _bit_array_bit_index(index) ((index) % _bit_array_num_bits)
 
-#define _bit_array_check_index(index) (                                                                          \
-    (index) >= (_bit_array_size(array))                                                                          \
-        ? (error_exit("bit_array_getbit: Index %lu mimo rozsah 0..%lu", (index), _bit_array_size(array) - 1), 1) \
+#define _bit_array_check_index(func_name, index) (                                                                                         \
+    (index) >= (_bit_array_size(array))                                                                                         \
+        ? (error_exit("%s: Index %lu mimo rozsah 0..%lu", (func_name), (unsigned long)(index), _bit_array_size(array) - 1), 1) \
         : 0)
 
 /**
@@ -46,16 +48,21 @@ typedef unsigned long bit_array_t;
  *     bit_array_create(q,100000L); // q = pole 100000 bitů, nulováno
  * Použijte static_assert pro kontrolu maximální možné velikosti pole.
  */
-//TODO: static_assert
-#define _bit_array_create(array, size)                                                                                   \
-    do                                                                                                                   \
-    {                                                                                                                    \
-        assert(size < (SIZE_MAX - 1) * CHAR_BIT /*bit_array_create: Bit array cannot be bigger then size_t max value*/); \
-        unsigned long len = _bit_array_len(size);                                                                        \
-                                                                                                                         \
-        memset((array), 0, len);                                                                                         \
-        (array)[0] = size;                                                                                               \
-    } while (0)
+#define _bit_array_create(array, size)                                                                                    \
+    bit_array_t array[_bit_array_len(size) / sizeof(unsigned long)];                                                      \
+                                                                                                                          \
+    static_assert((size) <= _bit_array_size_limit, "bit_array_create: Bit array cannot be bigger then size_t max value"); \
+                                                                                                                          \
+    memset((array), 0, _bit_array_len(size));                                                                             \
+    (array)[0] = size;
+
+#define _bit_array_dynamic_create(array, size)                                                                      \
+    bit_array_t array[_bit_array_len(size) / sizeof(unsigned long)];                                                \
+                                                                                                                    \
+    assert((size) <= _bit_array_size_limit /*bit_array_create: Bit array cannot be bigger then size_t max value*/); \
+                                                                                                                    \
+    memset((array), 0, _bit_array_len(size));                                                                       \
+    (array)[0] = size;
 
 /**
  * Definuje proměnnou jmeno_pole tak, aby byla kompatibilní s polem
@@ -65,21 +72,21 @@ typedef unsigned long bit_array_t;
  * Pokud alokace selže, ukončete program s chybovým hlášením:
  * "bit_array_alloc: Chyba alokace paměti"
  */
-#define _bit_array_alloc(array, size)                                                                                   \
-    do                                                                                                                  \
-    {                                                                                                                   \
-        assert(size < (SIZE_MAX - 1) * CHAR_BIT /*bit_array_alloc: Bit array cannot be bigger then size_t max value*/); \
-        unsigned long len = _bit_array_len(size);                                                                       \
-                                                                                                                        \
-        (*(array)) = malloc(len);                                                                                       \
-        if ((*(array)) == NULL)                                                                                         \
-        {                                                                                                               \
-            error_exit("bit_array_alloc: Chyba alokace paměti");                                                        \
-        }                                                                                                               \
-                                                                                                                        \
-        memset((*(array)), 0, len);                                                                                     \
-        (*(array))[0] = size;                                                                                           \
-    } while (0)
+#define _bit_array_alloc(array, size)                                                                              \
+    bit_array_t *array;                                                                                            \
+                                                                                                                   \
+    assert((size) <= _bit_array_size_limit /*bit_array_alloc: Bit array cannot be bigger then size_t max value*/); \
+    {                                                                                                              \
+        size_t len = _bit_array_len(size);                                                                         \
+        (array) = malloc(len);                                                                                     \
+        if ((array) == NULL)                                                                                       \
+        {                                                                                                          \
+            error_exit("bit_array_alloc: Chyba alokace paměti");                                                   \
+        }                                                                                                          \
+                                                                                                                   \
+        memset((array), 0, len);                                                                                   \
+        (array)[0] = size;                                                                                         \
+    }
 
 /**
  * Uvolní paměť dynamicky alokovaného pole
@@ -103,7 +110,8 @@ typedef unsigned long bit_array_t;
 #define _bit_array_setbit(array, index, newBit)                                              \
     do                                                                                       \
     {                                                                                        \
-        _bit_array_check_index(index);                                                       \
+        _bit_array_check_index("bit_array_setbit", index);                                                       \
+                                                                                             \
         if (newBit)                                                                          \
         {                                                                                    \
             (array)[_bit_array_index(index)] |= _long_one << _bit_array_bit_index(index);    \
@@ -114,35 +122,41 @@ typedef unsigned long bit_array_t;
         }                                                                                    \
     } while (0)
 
+//(array)[_bit_array_index(index)] = (array)[_bit_array_index(index)] ^ ((((unsigned long)((newBit) != 0)) << _bit_array_bit_index(index)) ^ ((array)[_bit_array_index(index)] & (_long_one << _bit_array_bit_index(index))));
+/*
+        unsigned long arrIndex = _bit_array_index(index);                                                      \
+        unsigned long bitIndex = _bit_array_bit_index(index);                                                  \
+        unsigned long currData = (array)[arrIndex];                                                            \
+        (array)[arrIndex] = currData ^ ((((unsigned long) ((newBit) != 0)) << bitIndex) ^ (currData & (_long_one << bitIndex))); \
+*/
+/*
+        if (newBit)                                                                          \
+        {                                                                                    \
+            (array)[_bit_array_index(index)] |= _long_one << _bit_array_bit_index(index);    \
+        }                                                                                    \
+        else                                                                                 \
+        {                                                                                    \
+            (array)[_bit_array_index(index)] &= ~(_long_one << _bit_array_bit_index(index)); \
+        }                                                                                    \
+*/
+
 /**
  * získá hodnotu zadaného bitu, vrací hodnotu 0 nebo 1
  * Př: if(bit_array_getbit(p,i)==1) printf("1");
  *     if(!bit_array_getbit(p,i))   printf("0");
  */
-#define _bit_array_getbit(array, index) (                                            \
-    _bit_array_check_index(index),                                                   \
-    (((array)[_bit_array_index(index)] & (_long_one << _bit_array_bit_index(index))) \
-         ? 1                                                                         \
-         : 0))
+#define _bit_array_getbit(array, index) ( \
+    _bit_array_check_index("bit_array_getbit", index),        \
+    (((array)[_bit_array_index(index)] & (_long_one << _bit_array_bit_index(index))) != 0))
 
 /* #define _bit_array_switchbit(array, index)                                            \
 //     do                                                                                \
 //     {                                                                                 \
-//         _bit_array_check_index(index);                                                \
+//         _bit_array_check_index("bit_array_getbit", index);                                                \
 //         (array)[_bit_array_index(index)] ^= _long_one << _bit_array_bit_index(index); \
 //     } while (0)*/
 
 #ifdef USE_INLINE
-
-inline void bit_array_create(bit_array_t *array, unsigned long size)
-{
-    _bit_array_create(array, size);
-}
-
-inline void bit_array_alloc(bit_array_t **array, unsigned long size)
-{
-    _bit_array_alloc(array, size);
-}
 
 inline void bit_array_free(bit_array_t *array)
 {
@@ -171,8 +185,6 @@ inline int bit_array_getbit(bit_array_t *array, unsigned long index)
 
 #else // USE_INLINE
 
-#define bit_array_create(array, size) _bit_array_create(array, size)
-#define bit_array_alloc(array, size) _bit_array_alloc(array, size)
 #define bit_array_free(array) _bit_array_free(array)
 #define bit_array_size(array) _bit_array_size(array)
 #define bit_array_setbit(array, index, newBit) _bit_array_setbit(array, index, newBit)
@@ -180,5 +192,9 @@ inline int bit_array_getbit(bit_array_t *array, unsigned long index)
 //#define bit_array_switchbit(array, index) _bit_array_switchbit(array, index)
 
 #endif // USE_INLINE
+
+#define bit_array_create(array, size) _bit_array_create(array, size)
+#define bit_array_dynamic_create(array, size) _bit_array_dynamic_create(array, size)
+#define bit_array_alloc(array, size) _bit_array_alloc(array, size)
 
 #endif // DU1_BIT_ARRAY_H

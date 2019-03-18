@@ -8,6 +8,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+#define TEST_ARRAY_SIZE 150
+
 void printArrayContents(bit_array_t *array)
 {
     unsigned long size = bit_array_size(array);
@@ -56,17 +58,13 @@ void testArray(bit_array_t *array)
 
 int main(/*const int argc, const char **argv*/)
 {
-    static const unsigned long size = 150;
-
 #ifdef USE_ALLOC
 
-    bit_array_t *array;
-    bit_array_alloc(&array, size);
+    bit_array_alloc(array, TEST_ARRAY_SIZE);
 
 #else // USE_ALLOC
 
-    bit_array_t array[size / CHAR_BIT + (size % CHAR_BIT ? 1 : 0) + 1];
-    bit_array_create(array, size);
+    bit_array_create(array, TEST_ARRAY_SIZE);
 
 #endif // USE_ALLOC
 

@@ -9,6 +9,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+#define PRIMES_SIZE 123000001 // 0 - 123000000
+
 void printPrimes(bit_array_t *array)
 {
     unsigned long size = bit_array_size(array);
@@ -34,17 +36,13 @@ void printPrimes(bit_array_t *array)
 
 int main(/*const int argc, const char **argv*/)
 {
-    static const unsigned long size = 123000001; // 0 - 123000000
-
 #ifdef USE_ALLOC
 
-    bit_array_t *array;
-    bit_array_alloc(&array, size);
+    bit_array_alloc(array, PRIMES_SIZE);
 
 #else // USE_ALLOC
 
-    bit_array_t array[size / CHAR_BIT + (size % CHAR_BIT ? 1 : 0) + 1];
-    bit_array_create(array, size);
+    bit_array_create(array, PRIMES_SIZE);
 
 #endif // USE_ALLOC
 

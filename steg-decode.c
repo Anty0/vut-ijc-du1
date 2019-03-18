@@ -25,17 +25,15 @@ int main(const int argc, const char **argv)
         error_exit("Failed to read image");
     }
 
-    unsigned long size = (unsigned long)image->xsize * (unsigned long)image->ysize * (unsigned long)3;
+    const unsigned long size = (unsigned long)image->xsize * (unsigned long)image->ysize * (unsigned long)3;
 
 #ifdef USE_ALLOC
 
-    bit_array_t *array;
-    bit_array_alloc(&array, size);
+    bit_array_alloc(array, size);
 
 #else // USE_ALLOC
 
-    bit_array_t array[size / CHAR_BIT + (size % CHAR_BIT ? 1 : 0) + 1];
-    bit_array_create(array, size);
+    bit_array_dynamic_create(array, size);
 
 #endif // USE_ALLOC
 
@@ -79,6 +77,7 @@ int main(const int argc, const char **argv)
             }
         }
     }
+    printf("\n");
 
 #ifdef USE_ALLOC
 
@@ -91,7 +90,6 @@ int main(const int argc, const char **argv)
 
     if (!successfulExit)
     {
-        printf("\n");
         error_exit("Image does not contain string terminator ('\\0')");
     }
 
